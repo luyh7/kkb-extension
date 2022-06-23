@@ -1,10 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <title>hello world</title>
+    <meta charset="utf-8" />
   </head>
   <body>
-    <button id="changeColor">change</button>
-    <script src="popup.js"></script>
+    <div id="app">
+      <div>{{ message }}</div>
+      <ul>
+        <li v-for="(content) in contentList" :key="content.video_id">
+          <span>{{content.chapterName}}</span>
+          <span>{{content.sectionName}}</span>
+          <span>{{content.t}}</span>
+          <span>{{content.contentName}}</span>
+          <span v-if="content.downloading">{{percentOf(content)}}</span>
+          <span v-else-if="content.finish">已完成</span>
+          <button
+            v-else-if="!content.beforeDownload"
+            @click="onDownload(content)"
+          >
+            download
+          </button>
+          <span v-else>请等待下载...</span>
+        </li>
+      </ul>
+      <div>{{ JSON.stringify(contentList[0]) }}</div>
+
+      <button @click="onClick">click</button>
+      <button @click="onRefresh">refresh</button>
+    </div>
+    <script src="https://cdn.bootcss.com/vue/2.6.14/vue.js"></script>
+    <script src="./popup.js"></script>
   </body>
 </html>
