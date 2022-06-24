@@ -5,15 +5,48 @@ var app = new Vue({
   data() {
     return {
       contentList: [],
+      indeterminate: false,
+      checkAll: false,
     };
   },
   mounted() {
     this.onRefresh();
   },
+  computed: {
+    isIndeterminate: function () {
+      return Boolean(
+        this.contentList.find((content) => content.selected) &&
+          this.contentList.find(
+            (content) => !content.selected && !this.isStartDownload(content)
+          )
+      );
+    },
+    isCheckAll: function () {
+      return Boolean(
+        this.contentList.find((content) => content.selected) &&
+          !this.contentList.find(
+            (content) => !content.selected && !this.isStartDownload(content)
+          )
+      );
+    },
+  },
   methods: {
-    onClick() {},
     onRefresh() {
       loadData(this);
+    },
+    onCheckChange() {
+      this.checkAll = this.isCheckAll;
+      this.indeterminate = this.isIndeterminate;
+    },
+    onCheckAllChange(val) {
+      this.contentList.forEach((content) => (content.selected = val));
+      // 这里对contentList重新赋值，重新激活content.selected双向绑定
+      this.contentList = JSON.parse(JSON.stringify(this.contentList));
+      this.indeterminate = false;
+    },
+    // 是否是开始下载之后的状态
+    isStartDownload(content) {
+      return content.beforeDownload || content.downloading || content.finish;
     },
     onDownload(content) {
       sendMessageToContentScript({ type: "download", content: content });

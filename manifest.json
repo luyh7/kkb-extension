@@ -28,12 +28,6 @@
     "cookies",
     "tabs"
   ],
-  "web_accessible_resources": [
-    "script.js",
-    "aes-decryptor.js",
-    "mux-mp4.js",
-    "m3u8.js",
-    "utils.js"
-  ],
+  "web_accessible_resources": ["utils/*", "injectscript.js"],
   "content_security_policy": "style-src 'self' 'unsafe-inline'  https://unpkg.com;script-src 'self' 'unsafe-eval' https://cdn.bootcss.com https://unpkg.com; object-src 'self' ;"
 }
