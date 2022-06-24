@@ -7,6 +7,7 @@ var app = new Vue({
       contentList: [],
       indeterminate: false,
       checkAll: false,
+      maxDownloadCount: 1,
     };
   },
   mounted() {
@@ -30,32 +31,56 @@ var app = new Vue({
       );
     },
   },
+  watch: {
+    // contentList 更新时检查状态，决定下一步操作
+    // todo 鉴于获取下载进度时也会更新contentList, 需要讨论这个watcher是否会严重影响性能
+    contentList() {
+      // 下载任务小于最大同时下载数时，开启一个等待中的下载
+      const downloadCount = this.contentList.filter(
+        (content) => content.downloading && !content.finish
+      ).length;
+      if (downloadCount < this.maxDownloadCount) {
+        console.log("downloadCount", downloadCount);
+        const nextDownloadContent = this.contentList.find(
+          (content) =>
+            content.beforeDownload && !content.downloading && !content.finish
+        );
+        nextDownloadContent && this.startDownload(nextDownloadContent);
+      }
+    },
+  },
+  /**
+   * content发生变化时尽量让 bgContent 跟着变，这样才能保持一致
+   */
   methods: {
     onRefresh() {
       loadData(this);
     },
-    onCheckChange() {
+    onCheckChange(content, val) {
       this.checkAll = this.isCheckAll;
       this.indeterminate = this.isIndeterminate;
+      this.bgContent(content).selected = val;
     },
     onCheckAllChange(val) {
-      this.contentList.forEach((content) => (content.selected = val));
-      // 这里对contentList重新赋值，重新激活content.selected双向绑定
-      this.contentList = JSON.parse(JSON.stringify(this.contentList));
+      bg.contentList.forEach((content) => (content.selected = val));
+      // this.contentList = JSON.parse(JSON.stringify(this.contentList));
       this.indeterminate = false;
+      // 这里对contentList重新赋值，重新激活content.selected双向绑定
+      loadData(this);
+    },
+    bgContent(content) {
+      return bg.contentList.find((c) => c.video_id === content.video_id);
     },
     // 是否是开始下载之后的状态
     isStartDownload(content) {
       return content.beforeDownload || content.downloading || content.finish;
     },
+    // 放入下载等待队列
     onDownload(content) {
-      sendMessageToContentScript({ type: "download", content: content });
-      const bgContent = bg.contentList.find(
-        (c) => c.video_id === content.video_id
-      );
-      bgContent.beforeDownload = true;
+      this.bgContent(content).beforeDownload = true;
       loadData(this);
     },
+    // 批量下载，同时只能存在一个下载任务
     onDownloadBatch() {
       this.contentList
         .filter((content) => content.selected)
@@ -63,6 +88,13 @@ var app = new Vue({
           this.onDownload(content);
         });
     },
+    // 开始下载
+    startDownload(content) {
+      this.bgContent(content).downloading = true;
+      content.downloading = true;
+      sendMessageToContentScript({ type: "download", content: content });
+    },
+
     percentOf(content) {
       let percent = (content.downloadCount / content.total) * 100;
       if (isNaN(percent)) {
@@ -91,14 +123,7 @@ var app = new Vue({
 
 function loadData(_vm) {
   const vm = _vm || app;
-  vm &&
-    vm.$set(
-      vm,
-      "contentList",
-      JSON.parse(JSON.stringify(bg.contentList)).sort(
-        (a, b) => a.video_id - b.video_id
-      )
-    );
+  vm && vm.$set(vm, "contentList", JSON.parse(JSON.stringify(bg.contentList)));
 }
 
 function sendMessageToContentScript(message, callback) {

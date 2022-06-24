@@ -83,6 +83,9 @@ function getChapterInfo(courseId, chapterId, chapterIndex) {
           content.content.forEach((contentSrc) => {
             contentSrc.chapterName = chapterName;
             contentSrc.sectionName = sectionName;
+            contentSrc.chapterIndex = chapterIndex;
+            contentSrc.sectionIndex = sectionIndex;
+            contentSrc.contentIndex = contentIndex;
             contentSrc.t = VIDEO_VENDOR[contentSrc.video_vendor];
             contentSrc.contentName = content.content_title;
             contentSrcList.push(contentSrc);
@@ -95,8 +98,6 @@ function getChapterInfo(courseId, chapterId, chapterIndex) {
         const contentVideoSrcList = contentSrcList.filter(
           (contentSrc) => contentSrc.video_id
         );
-        // console.log("contentVideoSrcList", contentVideoSrcList);
-
         let getM3U8Finish = 0;
         getLiveAccessToken().then((token) => {
           contentVideoSrcList.forEach((contentSrc) => {

@@ -10,7 +10,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     const popup = getPopup();
     popup && popup.loadData();
     // todo 这里或许可以改成叠加的方式
-    contentList = request.list;
+    contentList = request.list
+      .sort((a, b) => a.contentIndex - b.contentIndex)
+      .sort((a, b) => a.sectionIndex - b.sectionIndex)
+      .sort((a, b) => a.chapterIndex - b.chapterIndex);
     console.log("contentList", contentList);
 
     // https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
@@ -42,7 +45,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     const content = contentList.find(
       (content) => content.video_id === data.content.video_id
     );
-    content && (content.downloading = true);
+    // content && (content.downloading = true);
     const popup = getPopup();
     popup && popup.loadData();
   }

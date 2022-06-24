@@ -5,59 +5,68 @@
   </head>
   <body>
     <div id="app">
-      <div class="header">
-        <el-checkbox
-          style="margin-left: 20px; width: 60px"
-          :indeterminate="indeterminate"
-          v-model="checkAll"
-          @change="onCheckAllChange"
-        >
-          全选</el-checkbox
-        >
-
-        <el-button size="mini" type="primary" @click="onDownloadBatch">
-          批量下载
-        </el-button>
+      <div class="no-src" v-if="contentList.length === 0">
+        <div class="tips">没有抓取到视频链接</div>
       </div>
-      <ul class="ul">
-        <li
-          class="row"
-          v-for="(content) in contentList"
-          :key="content.video_id"
-        >
-          <div style="width: 30px">
-            <el-checkbox
-              v-if="!isStartDownload(content)"
-              v-model="content.selected"
-              @change="onCheckChange"
-            ></el-checkbox>
-          </div>
-          <div style="width: 500px">
-            <span>{{content.chapterName}}</span>
-            <span>{{content.sectionName}}</span>
-            <span>{{content.t}}</span>
-            <span>{{content.contentName}}</span>
-          </div>
-          <div style="width: 120px; margin-right: 40px">
-            <!-- 下载中或下载完成时显示进度条 -->
-            <el-progress
-              v-if="isStartDownload(content)"
-              :percentage="percentOf(content)"
-              :format="()=>progressFormatOf(content)"
-              :status="statusOf(content)"
-            ></el-progress>
-          </div>
-          <el-button
-            v-if="!isStartDownload(content)"
-            size="mini"
-            type="success"
-            @click="onDownload(content)"
+      <div v-else>
+        <div class="header">
+          <el-checkbox
+            style="margin-left: 20px; width: 70px"
+            :indeterminate="indeterminate"
+            v-model="checkAll"
+            @change="onCheckAllChange"
           >
-            下载
+            全选</el-checkbox
+          >
+
+          <el-button size="mini" type="primary" @click="onDownloadBatch">
+            批量下载
           </el-button>
-        </li>
-      </ul>
-      <div>{{ JSON.stringify(contentList[0]) }}</div>
+          最大同时下载数：<el-input
+            v-model="maxDownloadCount"
+            style="width: 60px"
+            size="mini"
+          ></el-input>
+        </div>
+        <ul class="ul">
+          <li
+            class="row"
+            v-for="(content) in contentList"
+            :key="content.video_id"
+          >
+            <div style="width: 30px">
+              <el-checkbox
+                v-model="content.selected"
+                @change="onCheckChange(content, $event)"
+              ></el-checkbox>
+            </div>
+            <div style="width: 500px">
+              <span>{{content.chapterName}}</span>
+              <span>{{content.sectionName}}</span>
+              <span>{{content.t}}</span>
+              <span>{{content.contentName}}</span>
+            </div>
+            <div style="width: 120px; margin-right: 40px">
+              <!-- 下载中或下载完成时显示进度条 -->
+              <el-progress
+                v-if="isStartDownload(content)"
+                :percentage="percentOf(content)"
+                :format="()=>progressFormatOf(content)"
+                :status="statusOf(content)"
+              ></el-progress>
+            </div>
+            <el-button
+              v-if="!isStartDownload(content)"
+              size="mini"
+              type="success"
+              @click="onDownload(content)"
+            >
+              下载
+            </el-button>
+          </li>
+        </ul>
+        <!-- <div>{{ JSON.stringify(contentList[0]) }}</div> -->
+      </div>
     </div>
     <script src="https://cdn.bootcss.com/vue/2.6.14/vue.js"></script>
     <link
@@ -67,6 +76,15 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="./popup.js"></script>
     <style>
+      .no-src {
+        width: 240px;
+        font-size: 16px;
+      }
+      .no-src .tips {
+        width: 200px;
+        text-align: center;
+        margin: 20px auto;
+      }
       .header > * {
         margin-right: 20px;
       }

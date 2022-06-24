@@ -1,10 +1,10 @@
 class M3U8Downloader {
   constructor(content) {
+    this.srcDownloading = false;
     this.content = content;
     // 碎片下载完后的回调
     this.finishCallback = null;
     this.progressCallback = null;
-    this.downloading = false;
     this.url = content.videoInfo.playURL;
     this.finishNum = 0;
     this.finishList = []; // 下载完成项目
@@ -35,8 +35,8 @@ class M3U8Downloader {
     };
   }
   getM3U8({ start, progress, finish }) {
-    if (this.content.downloading) {
-      console.log("资源下载中，请稍后");
+    if (this.content.srcDownloading) {
+      console.log("资源正在下载，请勿重复操作");
       return;
     }
     start &&
@@ -107,7 +107,7 @@ class M3U8Downloader {
         this.rangeDownload.targetSegment =
           this.rangeDownload.endSegment - this.rangeDownload.startSegment + 1;
         this.downloadIndex = this.rangeDownload.startSegment - 1;
-        this.downloading = true;
+        this.srcDownloading = true;
 
         // 获取需要下载的 MP4 视频长度
         if (this.isGetMP4) {
@@ -289,14 +289,12 @@ class M3U8Downloader {
         // 整合文件交给注入页面完成
         // this.fragmentFinishCallback &&
         //   this.fragmentFinishCallback(this.mediaFileList);
-        console.log(`下载完成，正在整理文件碎片`);
+        console.log(`${this.content.video_id}下载完成，正在整理文件碎片`);
         this.finishCallback({
           content: this.content,
         });
-        this.downloadFile(
-          this.mediaFileList,
-          this.formatTime(this.beginTime, "YYYY_MM_DD hh_mm_ss")
-        );
+        const fileName = `${this.content.chapterName} ${this.content.sectionName} ${this.content.contentName} ${this.content.videoInfo.resolution}`;
+        this.downloadFile(this.mediaFileList, fileName);
       }
       callback && callback();
     });
