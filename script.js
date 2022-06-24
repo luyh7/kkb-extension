@@ -9,6 +9,11 @@ function onPageChange(info) {
   loadData();
 }
 
+/**
+ * 获取当前页面的下载资源相关信息
+ * @param {boolean} force 是否强制获取
+ * @returns
+ */
 async function loadData(force = false) {
   console.log("try load data", window.location);
   // 防止重复获取数据

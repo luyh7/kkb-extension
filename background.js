@@ -1,4 +1,8 @@
 var contentList = [];
+// todo 接受消息的行为改为表驱动
+// 例如，根据接受的type来调用方法：
+// if !messageHandle[request.type] throw error
+// messageHandle[request.type](request,sender,sendResponse)
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // receive m3u8 links
   if (request.type == "m3u8") {
