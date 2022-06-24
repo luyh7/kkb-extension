@@ -1,62 +1,51 @@
-(function () {
-  console.log("hack started!");
-  var origOpen = XMLHttpRequest.prototype.open;
-  //   console.log("XMLHttpRequest.prototype", XMLHttpRequest.prototype);
-  XMLHttpRequest.prototype.open = function () {
-    this.addEventListener("load", function () {
-      // 拦截页面请求，获取课程信息
-      if (this.responseURL.match(/courseinfo/)) {
-        // console.log("responseURL", this.responseURL);
-        const { data } = JSON.parse(this.responseText);
-        console.log("courseInfo", data);
-        // 清空已经获取的视频信息
-        contentSrcList = [];
-        const chapterList = data.chapter_list;
-        chapterNum = chapterList.length;
-        chapterList.forEach((chapter, cIndex) => {
-          getChapterInfo(chapter.course_id, chapter.chapter_id, cIndex);
-        });
-      }
+var contentSrcList = [];
+var chapterNum = 0;
+var getChapterInfoFinish = 0;
+
+loadData();
+
+function onPageChange(info) {
+  console.log("info", info);
+  loadData();
+}
+
+async function loadData(force = false) {
+  console.log("try load data", window.location);
+  // 防止重复获取数据
+  if (!force && contentSrcList.length > 0) {
+    return;
+  }
+
+  const match = window.location.pathname.match(/catalog\/([0-9]+)/);
+  console.log("match", match, window.location.pathname);
+  if (match) {
+    console.log("匹配到目标url，获取courseList");
+    const courseId = match[1];
+    const { data: courseData } = await getCourseInfo(courseId);
+    const chapterList = courseData.chapter_list;
+    contentSrcList = [];
+    chapterNum = chapterList.length;
+    chapterList.forEach((chapter, cIndex) => {
+      getChapterInfo(chapter.course_id, chapter.chapter_id, cIndex);
     });
-    origOpen.apply(this, arguments);
-  };
-})();
+  }
+}
 
-// 封装cookie操作-
-const cookie = {
-  get(keys) {
-    let mat = new RegExp("(^|[^a-z])" + keys + "=(.*?)(;|$)", "i").exec(
-      document.cookie
-    );
-    return mat ? decodeURIComponent(mat[2]) : "";
-  },
-  set(name, value, expires, path, domain, secure) {
-    let cookieText = encodeURIComponent(name) + "=" + encodeURIComponent(value);
-    if (expires instanceof Date) {
-      cookieText += "; expires=" + expires.toGMTString();
+async function getCourseInfo(courseId) {
+  return fetch(
+    `https://weblearn.kaikeba.com/student/courseinfo?course_id=${courseId}&__timestamp=${new Date().getTime()}`,
+    {
+      headers: {
+        authorization: `Bearer pc:${cookie.get("access-edu_online")}`,
+        Cookie: document.cookie,
+        accept: "application/json, text/plain, */*",
+      },
     }
-    if (path) {
-      cookieText += "; path=" + path;
-    }
-    if (domain) {
-      cookieText += "; domain=" + domain;
-    }
-    if (secure) {
-      cookieText += "; secure";
-    }
-    document.cookie = cookieText;
-  },
-  unset(name, path, domain, secure) {
-    this.set(name, null, new Date(0), path, domain, secure);
-  },
-  delete(name, path, domain) {
-    this.set(name, "", -1, path, domain);
-  },
-};
+  )
+    .then((response) => response.text())
+    .then((text) => JSON.parse(text));
+}
 
-let contentSrcList = [];
-let chapterNum = 0;
-let getChapterInfoFinish = 0;
 function getChapterInfo(courseId, chapterId, chapterIndex) {
   fetch(
     `https://weblearn.kaikeba.com/student/chapterinfo?course_id=${courseId}&chapter_id=${chapterId}&__timestamp=${new Date().getTime()}`,
@@ -183,10 +172,10 @@ function sendMessageToContentScript(message) {
 
 window.addEventListener("message", function ({ data }) {
   if (data.type === "download") {
-    console.log("接受到来自popup的download数据", data);
+    console.log("接受到来自popup的下载信号", data);
     const content = data.content;
     const m3u8 = new M3U8Downloader(content);
-    console.log("m3u8", m3u8);
+    // console.log("m3u8", m3u8);
     m3u8.getM3U8({
       start: (data) => {
         sendMessageToContentScript({ type: "bg_start_download", data: data });
@@ -198,6 +187,9 @@ window.addEventListener("message", function ({ data }) {
         sendMessageToContentScript({ type: "bg_progress", data: data });
       },
     });
+  }
+  if (data.type === "inject_page_change") {
+    onPageChange(data.data);
   }
 });
 

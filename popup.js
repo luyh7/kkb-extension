@@ -4,7 +4,6 @@ var app = new Vue({
   el: "#app",
   data() {
     return {
-      message: "Hello Vue!dddd",
       contentList: [],
     };
   },
@@ -24,19 +23,49 @@ var app = new Vue({
       bgContent.beforeDownload = true;
       loadData(this);
     },
+    onDownloadBatch() {
+      this.contentList
+        .filter((content) => content.selected)
+        .forEach((content) => {
+          this.onDownload(content);
+        });
+    },
     percentOf(content) {
       let percent = (content.downloadCount / content.total) * 100;
       if (isNaN(percent)) {
         percent = 0;
       }
-      return percent.toFixed(2) + "%";
+      return +percent.toFixed(2);
+    },
+
+    progressFormatOf(content) {
+      if (content.downloading) {
+        return this.percentOf(content) + "%";
+      } else if (content.finish) {
+        return "已完成";
+      } else if (content.beforeDownload) {
+        return "等待下载";
+      }
+      return "";
+    },
+    statusOf(content) {
+      if (content.finish) {
+        return "success";
+      }
     },
   },
 });
 
 function loadData(_vm) {
   const vm = _vm || app;
-  vm && vm.$set(vm, "contentList", JSON.parse(JSON.stringify(bg.contentList)));
+  vm &&
+    vm.$set(
+      vm,
+      "contentList",
+      JSON.parse(JSON.stringify(bg.contentList)).sort(
+        (a, b) => a.video_id - b.video_id
+      )
+    );
 }
 
 function sendMessageToContentScript(message, callback) {

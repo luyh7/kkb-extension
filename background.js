@@ -21,6 +21,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
 });
 
+// 监听页面变化
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (changeInfo.url) {
+    console.log("onPageChange", changeInfo.url);
+    chrome.tabs.sendMessage(tabId, {
+      type: "inject_page_change",
+      data: changeInfo,
+    });
+  }
+});
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type == "bg_start_download") {
     const data = request.data;

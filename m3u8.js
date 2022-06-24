@@ -75,7 +75,7 @@ class M3U8Downloader {
     this.ajax({
       url: this.url,
       success: (m3u8Str) => {
-        console.log("m3u8Str", m3u8Str);
+        // console.log("m3u8Str", m3u8Str);
         this.tsUrlList = [];
         this.finishList = [];
 

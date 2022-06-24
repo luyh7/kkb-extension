@@ -10,6 +10,10 @@ var m3u8 = document.createElement("script");
 m3u8.src = chrome.extension.getURL("m3u8.js");
 (document.head || document.documentElement).appendChild(m3u8);
 
+var utils = document.createElement("script");
+utils.src = chrome.extension.getURL("utils.js");
+(document.head || document.documentElement).appendChild(utils);
+
 var s = document.createElement("script");
 s.src = chrome.extension.getURL("script.js");
 (document.head || document.documentElement).appendChild(s);
@@ -44,6 +48,7 @@ window.addEventListener(
 
 // 接受来自bg/popup的消息
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  // console.log("req", request);
   if (request.type == "download") {
     console.log("接收到来自popup的下载信号");
 
@@ -53,7 +58,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     //   // data.data is an Object, NOT an ArrayBuffer or Uint8Array
     //   receivedData.data = new Uint8Array(receivedData.data).buffer;
 
-    console.log("req", request);
+    window.postMessage(request, "*");
+  }
+
+  if (request.type == "inject_page_change") {
     window.postMessage(request, "*");
   }
 });

@@ -5,30 +5,69 @@
   </head>
   <body>
     <div id="app">
-      <div>{{ message }}</div>
-      <ul>
-        <li v-for="(content) in contentList" :key="content.video_id">
-          <span>{{content.chapterName}}</span>
-          <span>{{content.sectionName}}</span>
-          <span>{{content.t}}</span>
-          <span>{{content.contentName}}</span>
-          <span v-if="content.downloading">{{percentOf(content)}}</span>
-          <span v-else-if="content.finish">已完成</span>
-          <button
-            v-else-if="!content.beforeDownload"
+      <div class="header">
+        <el-button size="mini" type="primary" @click="onDownloadBatch">
+          批量下载
+        </el-button>
+      </div>
+      <ul class="ul">
+        <li
+          class="row"
+          v-for="(content) in contentList"
+          :key="content.video_id"
+        >
+          <div style="width: 30px">
+            <el-checkbox
+              v-if="!content.downloading && !content.beforeDownload"
+              v-model="content.selected"
+            ></el-checkbox>
+          </div>
+          <div style="width: 500px">
+            <span>{{content.chapterName}}</span>
+            <span>{{content.sectionName}}</span>
+            <span>{{content.t}}</span>
+            <span>{{content.contentName}}</span>
+          </div>
+          <div style="width: 120px; margin-right: 40px">
+            <el-progress
+              v-if="content.downloading || content.finish"
+              :percentage="percentOf(content)"
+              :format="()=>progressFormatOf(content)"
+              :status="statusOf(content)"
+            ></el-progress>
+          </div>
+          <el-button
+            v-if="!content.beforeDownload && !content.downloading && !content.finish"
+            size="mini"
+            type="success"
             @click="onDownload(content)"
           >
-            download
-          </button>
-          <span v-else>请等待下载...</span>
+            下载
+          </el-button>
         </li>
       </ul>
       <div>{{ JSON.stringify(contentList[0]) }}</div>
-
-      <button @click="onClick">click</button>
-      <button @click="onRefresh">refresh</button>
     </div>
     <script src="https://cdn.bootcss.com/vue/2.6.14/vue.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="./popup.js"></script>
+    <style>
+      .ul {
+        padding-inline-start: 20px;
+      }
+      .row {
+        display: flex;
+        align-items: baseline;
+        height: 40px;
+      }
+      .el-progress__text {
+        position: absolute;
+        width: 80px;
+      }
+    </style>
   </body>
 </html>
