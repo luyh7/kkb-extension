@@ -19,13 +19,13 @@
             全选</el-checkbox
           >
 
-          <el-button size="mini" type="primary" @click="onDownloadBatch">
+          <el-button size="small" type="primary" @click="onDownloadBatch">
             批量下载
           </el-button>
           最大同时下载数：<el-input
             v-model="maxDownloadCount"
             style="width: 60px"
-            size="mini"
+            size="small"
           ></el-input>
         </div>
         <ul class="ul">
@@ -46,7 +46,7 @@
               <span>{{content.t}}</span>
               <span>{{content.contentName}}</span>
             </div>
-            <div style="width: 120px; margin-right: 40px">
+            <div style="width: 140px; margin-right: 20px">
               <!-- 下载中或下载完成时显示进度条 -->
               <el-progress
                 v-if="isStartDownload(content)"
@@ -57,7 +57,7 @@
             </div>
             <el-button
               v-if="!isStartDownload(content)"
-              size="mini"
+              size="small"
               type="success"
               @click="onDownload(content)"
             >
@@ -68,15 +68,11 @@
         <!-- <div>{{ JSON.stringify(contentList[0]) }}</div> -->
       </div>
     </div>
-    <!-- <link
-      rel="stylesheet"
-      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
-    /> -->
-    <script src="./pkg/vue/vue.min.js"></script>
-    <script src="./pkg/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="./pkg/element-plus/index.css" />
+    <script src="./pkg/vue/vue@3.2.36.global.js"></script>
+    <script src="./pkg/element-plus/index.js"></script>
     <script src="./popup.js"></script>
     <style>
-      @import "./pkg/element-ui/theme-chalk/index.css";
       .no-src {
         width: 240px;
         font-size: 16px;
@@ -97,10 +93,10 @@
         align-items: baseline;
         height: 40px;
       }
-      .el-progress__text {
+      /* .el-progress__text {
         position: absolute;
         width: 80px;
-      }
+      } */
     </style>
   </body>
 </html>

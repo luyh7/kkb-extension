@@ -3,8 +3,8 @@
 // import "./pkg/element-ui/lib/index.js";
 const bg = chrome.extension.getBackgroundPage();
 
-var app = new Vue({
-  el: "#app",
+let app = Vue.createApp({
+  // el: "#app",
   data() {
     return {
       contentList: [],
@@ -125,9 +125,12 @@ var app = new Vue({
   },
 });
 
+app = app.use(ElementPlus).mount("#app");
+
 function loadData(_vm) {
   const vm = _vm || app;
-  vm && vm.$set(vm, "contentList", JSON.parse(JSON.stringify(bg.contentList)));
+  console.log("vm", vm);
+  vm && (vm.contentList = JSON.parse(JSON.stringify(bg.contentList)));
 }
 
 function sendMessageToContentScript(message, callback) {
