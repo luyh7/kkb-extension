@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type == "m3u8") {
     console.log("bg receive m3u8", request);
     const popup = getPopup();
-    popup && popup.loadData();
+    popup && popup.loadData && popup.loadData();
     // todo 这里或许可以改成叠加的方式
     contentList = request.list
       .sort((a, b) => a.contentIndex - b.contentIndex)
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     );
     // content && (content.downloading = true);
     const popup = getPopup();
-    popup && popup.loadData();
+    popup && popup.loadData && popup.loadData();
   }
 
   if (request.type == "bg_progress") {
@@ -57,8 +57,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     );
     content && (content.downloadCount = data.downloadCount);
     content && (content.total = data.total);
+    // try {
     const popup = getPopup();
-    popup && popup.loadData();
+    popup && popup.loadData && popup.loadData();
+    // } catch (error) {
+    //   console.log("popup err", popup, error);
+    // }
   }
   if (request.type == "bg_finish") {
     const data = request.data;
@@ -68,7 +72,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     content && (content.downloading = false);
     content && (content.finish = true);
     const popup = getPopup();
-    popup && popup.loadData();
+    popup && popup.loadData && popup.loadData();
   }
 });
 

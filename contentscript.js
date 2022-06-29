@@ -1,3 +1,7 @@
+var utils = document.createElement("script");
+utils.src = chrome.extension.getURL("utils/utils.js");
+(document.head || document.documentElement).appendChild(utils);
+
 var aes = document.createElement("script");
 aes.src = chrome.extension.getURL("utils/aes-decryptor.js");
 (document.head || document.documentElement).appendChild(aes);
@@ -9,10 +13,6 @@ mux.src = chrome.extension.getURL("utils/mux-mp4.js");
 var m3u8 = document.createElement("script");
 m3u8.src = chrome.extension.getURL("utils/m3u8.js");
 (document.head || document.documentElement).appendChild(m3u8);
-
-var utils = document.createElement("script");
-utils.src = chrome.extension.getURL("utils/utils.js");
-(document.head || document.documentElement).appendChild(utils);
 
 var s = document.createElement("script");
 s.src = chrome.extension.getURL("injectscript.js");
