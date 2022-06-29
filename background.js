@@ -7,14 +7,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // receive m3u8 links
   if (request.type == "m3u8") {
     console.log("bg receive m3u8", request);
-    const popup = getPopup();
-    popup && popup.loadData && popup.loadData();
     // todo 这里或许可以改成叠加的方式
     contentList = request.list
       .sort((a, b) => a.contentIndex - b.contentIndex)
       .sort((a, b) => a.sectionIndex - b.sectionIndex)
       .sort((a, b) => a.chapterIndex - b.chapterIndex);
     console.log("contentList", contentList);
+
+    const popup = getPopup();
+    popup && popup.loadData && popup.loadData();
 
     // https://stackoverflow.com/questions/8593896/chrome-extension-how-to-pass-arraybuffer-or-blob-from-content-script-to-the-bac
     // 尝试过在bg下载文件Buffer，然后通过序列化的方式传输到前台
@@ -57,12 +58,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     );
     content && (content.downloadCount = data.downloadCount);
     content && (content.total = data.total);
-    // try {
     const popup = getPopup();
     popup && popup.loadData && popup.loadData();
-    // } catch (error) {
-    //   console.log("popup err", popup, error);
-    // }
+    console.log("loadData", popup.loadData);
   }
   if (request.type == "bg_finish") {
     const data = request.data;

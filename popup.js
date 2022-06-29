@@ -11,6 +11,7 @@ var app = new Vue({
     };
   },
   mounted() {
+    console.log("popup mounted");
     this.onRefresh();
   },
   computed: {
