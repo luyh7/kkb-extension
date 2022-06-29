@@ -60,7 +60,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     content && (content.total = data.total);
     const popup = getPopup();
     popup && popup.loadData && popup.loadData();
-    console.log("loadData", popup.loadData);
   }
   if (request.type == "bg_finish") {
     const data = request.data;

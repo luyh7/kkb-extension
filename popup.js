@@ -1,3 +1,6 @@
+// import "./pkg/vue/vue.min.js";
+// import Vue from "./pkg/vue/vue.esm.browser.js";
+// import "./pkg/element-ui/lib/index.js";
 const bg = chrome.extension.getBackgroundPage();
 
 var app = new Vue({

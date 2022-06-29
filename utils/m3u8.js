@@ -1,4 +1,6 @@
-class M3U8Downloader {
+import AESDecryptor from "./aes-decryptor.js";
+import "./mux-mp4.js";
+export default class M3U8Downloader {
   constructor(content) {
     this.srcDownloading = false;
     this.content = content;

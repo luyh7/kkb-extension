@@ -1,5 +1,5 @@
 // 封装cookie操作-
-const cookie = {
+export const cookie = {
   get(keys) {
     let mat = new RegExp("(^|[^a-z])" + keys + "=(.*?)(;|$)", "i").exec(
       document.cookie

@@ -1,21 +1,24 @@
-var utils = document.createElement("script");
-utils.src = chrome.extension.getURL("utils/utils.js");
-(document.head || document.documentElement).appendChild(utils);
+// var utils = document.createElement("script");
+// utils.src = chrome.extension.getURL("utils/utils.js");
+// (document.head || document.documentElement).appendChild(utils);
 
-var aes = document.createElement("script");
-aes.src = chrome.extension.getURL("utils/aes-decryptor.js");
-(document.head || document.documentElement).appendChild(aes);
+// var mux = document.createElement("script");
+// mux.src = chrome.extension.getURL("utils/mux-mp4.js");
+// (document.head || document.documentElement).appendChild(mux);
 
-var mux = document.createElement("script");
-mux.src = chrome.extension.getURL("utils/mux-mp4.js");
-(document.head || document.documentElement).appendChild(mux);
+// var aes = document.createElement("script");
+// aes.src = chrome.extension.getURL("utils/aes-decryptor.js");
+// aes.type = "module";
+// (document.head || document.documentElement).appendChild(aes);
 
-var m3u8 = document.createElement("script");
-m3u8.src = chrome.extension.getURL("utils/m3u8.js");
-(document.head || document.documentElement).appendChild(m3u8);
+// var m3u8 = document.createElement("script");
+// m3u8.src = chrome.extension.getURL("utils/m3u8.js");
+// m3u8.type = "module";
+// (document.head || document.documentElement).appendChild(m3u8);
 
 var s = document.createElement("script");
 s.src = chrome.extension.getURL("injectscript.js");
+s.type = "module";
 (document.head || document.documentElement).appendChild(s);
 
 // var port = chrome.extension.connect();

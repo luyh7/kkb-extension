@@ -2,7 +2,8 @@
 
 function removePadding(buffer) {
   const outputBytes = buffer.byteLength;
-  const paddingBytes = outputBytes && (new DataView(buffer)).getUint8(outputBytes - 1);
+  const paddingBytes =
+    outputBytes && new DataView(buffer).getUint8(outputBytes - 1);
   if (paddingBytes) {
     return buffer.slice(0, outputBytes - paddingBytes);
   } else {
@@ -10,12 +11,22 @@ function removePadding(buffer) {
   }
 }
 
-function AESDecryptor() {
+export default function AESDecryptor() {
   return {
     constructor() {
       this.rcon = [0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
-      this.subMix = [new Uint32Array(256), new Uint32Array(256), new Uint32Array(256), new Uint32Array(256)];
-      this.invSubMix = [new Uint32Array(256), new Uint32Array(256), new Uint32Array(256), new Uint32Array(256)];
+      this.subMix = [
+        new Uint32Array(256),
+        new Uint32Array(256),
+        new Uint32Array(256),
+        new Uint32Array(256),
+      ];
+      this.invSubMix = [
+        new Uint32Array(256),
+        new Uint32Array(256),
+        new Uint32Array(256),
+        new Uint32Array(256),
+      ];
       this.sBox = new Uint32Array(256);
       this.invSBox = new Uint32Array(256);
 
@@ -104,7 +115,7 @@ function AESDecryptor() {
       let offset = 0;
 
       while (offset < key.length && sameKey) {
-        sameKey = (key[offset] === this.key[offset]);
+        sameKey = key[offset] === this.key[offset];
         offset++;
       }
 
@@ -113,18 +124,18 @@ function AESDecryptor() {
       }
 
       this.key = key;
-      let keySize = this.keySize = key.length;
+      let keySize = (this.keySize = key.length);
 
       if (keySize !== 4 && keySize !== 6 && keySize !== 8) {
-        throw new Error('Invalid aes key size=' + keySize);
+        throw new Error("Invalid aes key size=" + keySize);
       }
 
-      let ksRows = this.ksRows = (keySize + 6 + 1) * 4;
+      let ksRows = (this.ksRows = (keySize + 6 + 1) * 4);
       let ksRow;
       let invKsRow;
 
-      let keySchedule = this.keySchedule = new Uint32Array(ksRows);
-      let invKeySchedule = this.invKeySchedule = new Uint32Array(ksRows);
+      let keySchedule = (this.keySchedule = new Uint32Array(ksRows));
+      let invKeySchedule = (this.invKeySchedule = new Uint32Array(ksRows));
       let sbox = this.sBox;
       let rcon = this.rcon;
 
@@ -149,13 +160,21 @@ function AESDecryptor() {
           t = (t << 8) | (t >>> 24);
 
           // Sub word
-          t = (sbox[t >>> 24] << 24) | (sbox[(t >>> 16) & 0xff] << 16) | (sbox[(t >>> 8) & 0xff] << 8) | sbox[t & 0xff];
+          t =
+            (sbox[t >>> 24] << 24) |
+            (sbox[(t >>> 16) & 0xff] << 16) |
+            (sbox[(t >>> 8) & 0xff] << 8) |
+            sbox[t & 0xff];
 
           // Mix Rcon
           t ^= rcon[(ksRow / keySize) | 0] << 24;
         } else if (keySize > 6 && ksRow % keySize === 4) {
           // Sub word
-          t = (sbox[t >>> 24] << 24) | (sbox[(t >>> 16) & 0xff] << 16) | (sbox[(t >>> 8) & 0xff] << 8) | sbox[t & 0xff];
+          t =
+            (sbox[t >>> 24] << 24) |
+            (sbox[(t >>> 16) & 0xff] << 16) |
+            (sbox[(t >>> 8) & 0xff] << 8) |
+            sbox[t & 0xff];
         }
 
         keySchedule[ksRow] = prev = (keySchedule[ksRow - keySize] ^ t) >>> 0;
@@ -172,7 +191,11 @@ function AESDecryptor() {
         if (invKsRow < 4 || ksRow <= 4) {
           invKeySchedule[invKsRow] = t;
         } else {
-          invKeySchedule[invKsRow] = invSubMix0[sbox[t >>> 24]] ^ invSubMix1[sbox[(t >>> 16) & 0xff]] ^ invSubMix2[sbox[(t >>> 8) & 0xff]] ^ invSubMix3[sbox[t & 0xff]];
+          invKeySchedule[invKsRow] =
+            invSubMix0[sbox[t >>> 24]] ^
+            invSubMix1[sbox[(t >>> 16) & 0xff]] ^
+            invSubMix2[sbox[(t >>> 8) & 0xff]] ^
+            invSubMix3[sbox[t & 0xff]];
         }
 
         invKeySchedule[invKsRow] = invKeySchedule[invKsRow] >>> 0;
@@ -181,7 +204,12 @@ function AESDecryptor() {
 
     // Adding this as a method greatly improves performance.
     networkToHostOrderSwap(word) {
-      return (word << 24) | ((word & 0xff00) << 8) | ((word & 0xff0000) >> 8) | (word >>> 24);
+      return (
+        (word << 24) |
+        ((word & 0xff00) << 8) |
+        ((word & 0xff0000) >> 8) |
+        (word >>> 24)
+      );
     },
 
     decrypt(inputArrayBuffer, offset, aesIV, removePKCS7Padding) {
@@ -226,10 +254,30 @@ function AESDecryptor() {
 
         // Iterate through the rounds of decryption
         for (i = 1; i < nRounds; i++) {
-          t0 = invSubMix0[s0 >>> 24] ^ invSubMix1[(s1 >> 16) & 0xff] ^ invSubMix2[(s2 >> 8) & 0xff] ^ invSubMix3[s3 & 0xff] ^ invKeySchedule[ksRow];
-          t1 = invSubMix0[s1 >>> 24] ^ invSubMix1[(s2 >> 16) & 0xff] ^ invSubMix2[(s3 >> 8) & 0xff] ^ invSubMix3[s0 & 0xff] ^ invKeySchedule[ksRow + 1];
-          t2 = invSubMix0[s2 >>> 24] ^ invSubMix1[(s3 >> 16) & 0xff] ^ invSubMix2[(s0 >> 8) & 0xff] ^ invSubMix3[s1 & 0xff] ^ invKeySchedule[ksRow + 2];
-          t3 = invSubMix0[s3 >>> 24] ^ invSubMix1[(s0 >> 16) & 0xff] ^ invSubMix2[(s1 >> 8) & 0xff] ^ invSubMix3[s2 & 0xff] ^ invKeySchedule[ksRow + 3];
+          t0 =
+            invSubMix0[s0 >>> 24] ^
+            invSubMix1[(s1 >> 16) & 0xff] ^
+            invSubMix2[(s2 >> 8) & 0xff] ^
+            invSubMix3[s3 & 0xff] ^
+            invKeySchedule[ksRow];
+          t1 =
+            invSubMix0[s1 >>> 24] ^
+            invSubMix1[(s2 >> 16) & 0xff] ^
+            invSubMix2[(s3 >> 8) & 0xff] ^
+            invSubMix3[s0 & 0xff] ^
+            invKeySchedule[ksRow + 1];
+          t2 =
+            invSubMix0[s2 >>> 24] ^
+            invSubMix1[(s3 >> 16) & 0xff] ^
+            invSubMix2[(s0 >> 8) & 0xff] ^
+            invSubMix3[s1 & 0xff] ^
+            invKeySchedule[ksRow + 2];
+          t3 =
+            invSubMix0[s3 >>> 24] ^
+            invSubMix1[(s0 >> 16) & 0xff] ^
+            invSubMix2[(s1 >> 8) & 0xff] ^
+            invSubMix3[s2 & 0xff] ^
+            invKeySchedule[ksRow + 3];
           // Update state
           s0 = t0;
           s1 = t1;
@@ -240,10 +288,30 @@ function AESDecryptor() {
         }
 
         // Shift rows, sub bytes, add round key
-        t0 = ((invSBOX[s0 >>> 24] << 24) ^ (invSBOX[(s1 >> 16) & 0xff] << 16) ^ (invSBOX[(s2 >> 8) & 0xff] << 8) ^ invSBOX[s3 & 0xff]) ^ invKeySchedule[ksRow];
-        t1 = ((invSBOX[s1 >>> 24] << 24) ^ (invSBOX[(s2 >> 16) & 0xff] << 16) ^ (invSBOX[(s3 >> 8) & 0xff] << 8) ^ invSBOX[s0 & 0xff]) ^ invKeySchedule[ksRow + 1];
-        t2 = ((invSBOX[s2 >>> 24] << 24) ^ (invSBOX[(s3 >> 16) & 0xff] << 16) ^ (invSBOX[(s0 >> 8) & 0xff] << 8) ^ invSBOX[s1 & 0xff]) ^ invKeySchedule[ksRow + 2];
-        t3 = ((invSBOX[s3 >>> 24] << 24) ^ (invSBOX[(s0 >> 16) & 0xff] << 16) ^ (invSBOX[(s1 >> 8) & 0xff] << 8) ^ invSBOX[s2 & 0xff]) ^ invKeySchedule[ksRow + 3];
+        t0 =
+          (invSBOX[s0 >>> 24] << 24) ^
+          (invSBOX[(s1 >> 16) & 0xff] << 16) ^
+          (invSBOX[(s2 >> 8) & 0xff] << 8) ^
+          invSBOX[s3 & 0xff] ^
+          invKeySchedule[ksRow];
+        t1 =
+          (invSBOX[s1 >>> 24] << 24) ^
+          (invSBOX[(s2 >> 16) & 0xff] << 16) ^
+          (invSBOX[(s3 >> 8) & 0xff] << 8) ^
+          invSBOX[s0 & 0xff] ^
+          invKeySchedule[ksRow + 1];
+        t2 =
+          (invSBOX[s2 >>> 24] << 24) ^
+          (invSBOX[(s3 >> 16) & 0xff] << 16) ^
+          (invSBOX[(s0 >> 8) & 0xff] << 8) ^
+          invSBOX[s1 & 0xff] ^
+          invKeySchedule[ksRow + 2];
+        t3 =
+          (invSBOX[s3 >>> 24] << 24) ^
+          (invSBOX[(s0 >> 16) & 0xff] << 16) ^
+          (invSBOX[(s1 >> 8) & 0xff] << 8) ^
+          invSBOX[s2 & 0xff] ^
+          invKeySchedule[ksRow + 3];
         ksRow = ksRow + 3;
 
         // Write
@@ -261,7 +329,9 @@ function AESDecryptor() {
         offset = offset + 4;
       }
 
-      return removePKCS7Padding ? removePadding(outputInt32.buffer) : outputInt32.buffer;
+      return removePKCS7Padding
+        ? removePadding(outputInt32.buffer)
+        : outputInt32.buffer;
     },
 
     destroy() {
@@ -278,6 +348,5 @@ function AESDecryptor() {
 
       this.rcon = undefined;
     },
-  }
+  };
 }
-

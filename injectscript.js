@@ -1,3 +1,5 @@
+import { cookie } from "./utils/utils.js";
+import M3U8Downloader from "./utils/m3u8.js";
 var contentSrcList = [];
 var chapterNum = 0;
 var getChapterInfoFinish = 0;
