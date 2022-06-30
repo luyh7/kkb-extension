@@ -1,6 +1,3 @@
-// import "./pkg/vue/vue.min.js";
-// import Vue from "./pkg/vue/vue.esm.browser.js";
-// import "./pkg/element-ui/lib/index.js";
 const bg = chrome.extension.getBackgroundPage();
 
 // 为啥Vue.watch就不行啊 啊啊啊啊啊啊啊
@@ -39,14 +36,6 @@ let app = Vue.createApp({
           )
       );
     },
-    isIndeterminate: function () {
-      return Boolean(
-        this.contentList.find((content) => content.selected) &&
-          this.contentList.find(
-            (content) => !content.selected && !this.isStartDownload(content)
-          )
-      );
-    },
     isCheckAll: function () {
       return Boolean(
         this.contentList.find((content) => content.selected) &&
@@ -55,9 +44,6 @@ let app = Vue.createApp({
           )
       );
     },
-    // contentList: function () {
-    //   return bg.contentList.value;
-    // },
   },
   methods: {
     onRefresh() {
@@ -135,43 +121,3 @@ function sendMessageToContentScript(message, callback) {
     });
   });
 }
-
-const exp = {
-  video_id: 96713,
-  content_id: 326989,
-  group_id: 42771,
-  section_id: 44077,
-  chapter_id: 213783,
-  course_id: 212328,
-  video_vendor: 5,
-  status: 2,
-  duration: 8272,
-  file_size: 0,
-  image:
-    "https://v.baoshiyun.com/resource/media-846643034750976/e42e7df5008f4763a4c27465d492e3b2_00001.jpg",
-  callback_key: "media-846643034750976",
-  hide: 0,
-  support_free_see: 0,
-  support_free_see_type: 0,
-  is_signin: 0,
-  chapterName: "第7章",
-  sectionName: "第1节",
-  t: "直播",
-  contentName: "小程序-01：微信原生小程序+云开发",
-  videoInfo: {
-    videoId: "video-846657323171840",
-    extension: ".m3u8",
-    resolution: "超清",
-    presetName: "lud",
-    bucketName: "bsy-vod-output",
-    objectName:
-      "resource/media-846643034750976/lud/a07d66565eca4382a369906a5ddd30b7.m3u8",
-    isEncryption: true,
-    noAuth: true,
-    playURL:
-      "https://v.baoshiyun.com/resource/media-846643034750976/lud/a07d66565eca4382a369906a5ddd30b7.m3u8?MtsHlsUriToken=33767a5310b14d8ab581cea3a293342854bc9e3a7f6a43c282f5aece7b0678e0",
-    size: "438306208",
-    duration: "8272.379778",
-    title: "小程序-01：微信原生小程序 云开发",
-  },
-};

@@ -6,7 +6,6 @@ var maxDownloadCount = ref(2);
 watch(
   () => contentList.value,
   (val) => {
-    console.log("fuck");
     // 更新页面
     const popup = getPopup();
     popup && popup.loadData && popup.loadData();
