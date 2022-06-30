@@ -106,7 +106,7 @@ function getPopup() {
 }
 
 function sendMessageToContentScript(message, callback) {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  chrome.tabs.query({ url: 'https://learn.kaikeba.com/*' }, function (tabs) {
     chrome.tabs.sendMessage(tabs[0].id, message, function (response) {
       if (callback) callback(response);
     });
