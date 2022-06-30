@@ -6,6 +6,7 @@ var maxDownloadCount = ref(2);
 watch(
   () => contentList.value,
   (val) => {
+    console.log("fuck");
     // 更新页面
     const popup = getPopup();
     popup && popup.loadData && popup.loadData();
@@ -14,7 +15,7 @@ watch(
     const downloadCount = val.filter(
       (content) => content.downloading && !content.finish
     ).length;
-    if (downloadCount < maxDownloadCount) {
+    if (downloadCount < maxDownloadCount.value) {
       const nextDownloadContent = val.find(
         (content) =>
           content.beforeDownload && !content.downloading && !content.finish
