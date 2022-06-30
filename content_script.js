@@ -17,7 +17,7 @@
 // (document.head || document.documentElement).appendChild(m3u8);
 
 var s = document.createElement("script");
-s.src = chrome.extension.getURL("injectscript.js");
+s.src = chrome.extension.getURL("inject_script.js");
 s.type = "module";
 (document.head || document.documentElement).appendChild(s);
 
